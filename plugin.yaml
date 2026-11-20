@@ -1,5 +1,5 @@
 name: riff-connect-hermes
-version: 0.2.0
+version: 0.2.1
 description: >-
   Connects this Hermes to your Riff board through your own riff-connect-hermes Worker.
   Riff reaches Hermes through the Worker, with no tunnel and no open port; card requests

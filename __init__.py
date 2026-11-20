@@ -33,7 +33,8 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-VERSION = "0.2.0"
+VERSION = "0.2.1"
+START_DELAY = float(os.environ.get("RIFF_CONNECT_START_DELAY") or 8)
 log = logging.getLogger("riff-connect-hermes")
 HOME = Path(os.environ.get("HERMES_HOME") or (Path.home() / ".hermes"))
 STATE = HOME / "riff-connect-hermes.json"
@@ -205,7 +206,16 @@ def _connect_pair(args, **kwargs):
         with _key_lock:
             _save(url, j["hermesKey"])
         LINK.wake()
-        return json.dumps({"result": "Paired with %s. Riff shows Connected as soon as the Hermes gateway is linked (a few seconds). If the gateway isn't running, the user should start it with: hermes gateway" % url})
+        # 0.2.1: say only what is true. Ask the Worker whether the gateway's link came up.
+        for _ in range(15):
+            time.sleep(2)
+            try:
+                st, info = _http("GET", url + "/?t=%d" % int(time.time() * 1000))
+                if st == 200 and ((info or {}).get("hermes") or {}).get("connected"):
+                    return json.dumps({"result": "Paired and connected: Riff can reach this Hermes through %s. Riff › Models shows Connected. Do not run any 'hermes gateway' command now; it isn't needed." % url})
+            except Exception:  # noqa: BLE001
+                pass
+        return json.dumps({"result": "Paired with %s, but the Hermes gateway hasn't linked to it within 30 seconds. Ask the user to check that the gateway is running (hermes gateway status) and, if it is, to restart it once with: hermes gateway restart. Do not restart it yourself." % url})
     except Exception as e:  # noqa: BLE001
         return json.dumps({"error": "Pairing failed: %s: %s" % (type(e).__name__, e)})
 
@@ -335,6 +345,9 @@ class Link:
             return
         self.aiohttp = aiohttp
         self.woken = asyncio.Event()
+        # 0.2.1: wait a moment before linking, so a process that only starts and exits never
+        # takes the link from the gateway that is already running.
+        await asyncio.sleep(START_DELAY)
         backoff, fresh = 1, False
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=None, sock_connect=15)) as http:
             self.http = http
@@ -367,8 +380,9 @@ class Link:
                             self.tasks.clear()
                         if ws.close_code == 4000:
                             # Another Hermes process connected in our place: let it keep the link.
-                            log.warning("riff-connect-hermes: another connection replaced this one; trying again in 10 minutes")
-                            wait = 600
+                            # 0.2.1: one minute, not ten: the replacer is often a short-lived command.
+                            log.warning("riff-connect-hermes: another Hermes process took the link; trying again in a minute")
+                            wait = 60
                 except aiohttp.WSServerHandshakeError as e:
                     if e.status == 401:
                         fresh = True
@@ -494,7 +508,17 @@ def _should_link(ctx):
         return False
     if getattr(ctx, "_cli_ref", None) is not None:
         return False
-    return any("gateway" in a for a in sys.argv)
+    # 0.2.1: "hermes gateway status/restart/stop/..." also load plugins. Those short-lived
+    # commands must not link: they took the Worker's socket from the running gateway (Nov 20).
+    args = [os.path.basename(a) for a in sys.argv]
+    if not any("gateway" in a for a in args):
+        return False
+    i = next(n for n, a in enumerate(args) if "gateway" in a)
+    after = args[i + 1] if i + 1 < len(args) else ""
+    return after not in SHORT_LIVED
+
+
+SHORT_LIVED = {"status", "stop", "restart", "install", "uninstall", "logs", "log", "setup", "enable", "disable", "doctor", "--help", "-h", "help"}
 
 
 def register(ctx):

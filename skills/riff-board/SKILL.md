@@ -9,7 +9,7 @@ Riff is a browser extension. Its board shows the user what you are working on, a
 
 ## Connecting to Riff
 
-If the user pastes a message from Riff with an address (…workers.dev) and a one-time code, or asks you to connect to Riff, call `riff_connect_pair` with that address and code. Tell the user what it answered. If the Hermes gateway isn't running, tell them to start it; do not restart the gateway yourself (that ends this session).
+If the user pastes a message from Riff with an address (…workers.dev) and a one-time code, or asks you to connect to Riff, call `riff_connect_pair` with that address and code. Tell the user exactly what it answered; it checks the connection itself. Don't run any `hermes gateway` command afterwards to check: the tool already did, and those commands can interrupt the link. If it says the gateway hasn't linked, pass on its advice; never restart the gateway yourself (that ends this session).
 
 ## Asking for a card
 
