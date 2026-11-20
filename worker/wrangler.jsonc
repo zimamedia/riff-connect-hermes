@@ -1,0 +1,11 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "riff-connect-hermes",
+  "main": "src/index.js",
+  "compatibility_date": "2025-09-01",
+  // One Durable Object with SQLite storage holds the inbox. It is on the Workers Free plan.
+  "durable_objects": {
+    "bindings": [{ "name": "INBOX", "class_name": "Inbox" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Inbox"] }]
+}

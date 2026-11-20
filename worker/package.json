@@ -1,0 +1,24 @@
+{
+  "name": "riff-connect-hermes",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Riff Connect for Hermes: a small Worker on your own Cloudflare account that lets Riff reach your Hermes agent, with no tunnel and no open port.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --no-warnings test/inbox-test.mjs && node --no-warnings test/relay-test.mjs",
+    "sync-riffs": "node scripts/sync-riffs.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "^4"
+  },
+  "cloudflare": {
+    "bindings": {
+      "PAIRING_CODE": {
+        "description": "The pairing code from Riff \u203a Models \u203a Add \u203a **Hermes agent, through Riff Connect** \u203a *Make and copy a code*. Paste it here; Riff uses it once to pair. Setting up by hand? Any random code of 12 characters or more works (for example from `openssl rand -hex 16`)."
+      }
+    }
+  }
+}

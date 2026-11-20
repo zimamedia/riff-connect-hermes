@@ -1,0 +1,17 @@
+name: riff-connect-hermes
+version: 0.2.0
+description: >-
+  Connects this Hermes to your Riff board through your own riff-connect-hermes Worker.
+  Riff reaches Hermes through the Worker, with no tunnel and no open port; card requests
+  and tool steps go to the Worker too.
+provides_tools:
+  - riff_connect_pair
+  - riff_list_riffs
+  - riff_request_card
+  - riff_request_status
+provides_hooks:
+  - pre_tool_call
+  - post_tool_call
+# No required settings: riff_connect_pair saves the Worker's address and this Hermes's key
+# (Riff › Models shows the message to paste into Hermes). RIFF_CONNECT_URL and
+# RIFF_CONNECT_CODE in ~/.hermes/.env still work for a manual setup.
