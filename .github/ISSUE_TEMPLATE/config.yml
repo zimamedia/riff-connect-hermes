@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem privately
+    url: https://github.com/zimamedia/riff-connect-hermes/security/advisories/new
+    about: Please don't report security problems in public issues.
+  - name: Riff help
+    url: https://riffreply.com/help
+    about: Questions about Riff itself.

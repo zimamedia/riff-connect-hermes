@@ -1,0 +1,46 @@
+name: Something doesn't work
+description: Setup, pairing, connection or a chat through the connector fails.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a security problem, don't use this form. See SECURITY.md.
+        Never paste a pairing code, a one-time code or a key here.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what you saw instead.
+    validations:
+      required: true
+  - type: input
+    id: worker
+    attributes:
+      label: Worker version
+      description: Open your Worker's address (…workers.dev) in a browser and copy the "version" value.
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: input
+    id: plugin
+    attributes:
+      label: Plugin version
+      description: The "plugin" value on the same page, or "version" in ~/.hermes/plugins/riff-connect-hermes/plugin.yaml.
+      placeholder: 0.2.1
+  - type: input
+    id: hermes
+    attributes:
+      label: Hermes version and OS
+      placeholder: Hermes 0.x on macOS 15
+  - type: input
+    id: riff
+    attributes:
+      label: Riff version and browser
+      placeholder: Riff 1.1.1 on Chrome
+  - type: textarea
+    id: logs
+    attributes:
+      label: Plugin log lines
+      description: "Run: grep -rh riff-connect-hermes ~/.hermes/logs | tail -30. Remove anything private before pasting."
+      render: text
